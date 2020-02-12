@@ -3,7 +3,7 @@ layout: post
 title: Linux常用命令
 date: 2019-10-03
 author: WangY.
-tags: [Linux， 命令]
+tags: [Linux, 命令]
 comments: true
 toc: true
 ---
