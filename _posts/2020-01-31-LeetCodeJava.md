@@ -3,13 +3,15 @@ layout: post
 title: LeetCode-Java题解
 date: 2020-01-31
 author: WangY.
-tags: [Java, code, 丑数]
+tags: [Java, code, LeetCode]
 comments: true
 toc: true
 ---
 
 目前正在准备实习面试，在LeetCode上刷相关题目。
+
 此博客用于记录一些较难、经典的题目和一些巧妙的解法。
+
 题目及部分代码来自[力扣](https://leetcode-cn.com/)，不断更新中……
 
 
@@ -18,14 +20,17 @@ toc: true
 ### 题目介绍
 
 编写一个程序，找出第 n 个丑数。
+
 丑数就是只包含质因数 2, 3, 5 的正整数。
 
-> 示例:
+**示例:**
+
 > 输入: n = 10
 > 输出: 12
 > 解释: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 是前 10 个丑数。
 
-说明: 
+**说明:** 
+
 1.    1 是丑数。
 2.    n 不超过1690。
 
@@ -80,3 +85,187 @@ public int nthUglyNumber(int n) {
 
 - 丑数6，可能由于丑数2乘以权重3产生；也可能由于丑数3乘以权重2产生。
 - 丑数10，... 等等。
+
+
+
+## 二叉树的遍历
+
+### 前序遍历题目介绍
+
+给定一个二叉树，返回它的前序遍历。
+
+（前序遍历：先访问根节点——左子树——右子树。）
+
+**示例:**
+
+> 输入: [1,null,2,3]
+>    1
+>       \
+>         2
+>       /
+>    3
+> 输出: [1,2,3]
+
+
+
+### 前序遍历代码实现
+
+**迭代法：**
+
+从根节点开始，每次迭代弹出当前栈顶元素，并将其孩子节点压入栈中，先压右孩子再压左孩子。
+
+在这个算法中，输出到最终结果的顺序按照 `Top->Bottom` 和 `Left->Right`，符合前序遍历的顺序。
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+  public List<Integer> preorderTraversal(TreeNode root) {
+    LinkedList<TreeNode> stack = new LinkedList<>();
+    LinkedList<Integer> output = new LinkedList<>();
+    if (root == null) {
+      return output;
+    }
+
+    stack.add(root);
+    while (!stack.isEmpty()) {
+      //检索并弹出stcak中最后一个元素
+      TreeNode node = stack.pollLast(); 
+      //将弹出的元素加入output中
+      output.add(node.val);
+      
+      if (node.right != null) {
+        stack.add(node.right);
+      }
+      if (node.left != null) {
+        stack.add(node.left);
+      }
+        
+    }
+    return output;
+  }
+}
+```
+
+
+
+**算法复杂度：**
+
+- 时间复杂度：访问每个节点恰好一次，时间复杂度为*O*(*N*)，其中*N*是节点的个数，也就是树的大小。
+- 空间复杂度：取决于树的结构，最坏情况存储整棵树，因此空间复杂度是*O*(*N*)。
+
+
+
+### 中序遍历题目介绍
+
+给定一个二叉树，返回它的中序遍历。
+
+（中序遍历：先访问左子树——根节点——右子树。）
+
+**示例:**
+
+> 输入: [1,null,2,3]
+>    1
+>       \
+>         2
+>       /
+>    3
+> 输出: [1,3,2]
+
+
+
+### 中序遍历代码实现
+
+解法一：**递归**
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public List <Integer> inorderTraversal(TreeNode root) {
+        List <Integer> res = new ArrayList <> ();
+        helper(root, res);
+        return res;
+    }
+
+	public void helper(TreeNode root, List <Integer> res) {
+    	if (root != null) {
+       	   if (root.left != null) {
+           	  helper(root.left, res);
+       	   }
+           res.add(root.val);
+           if (root.right != null) {
+              helper(root.right, res);
+           }
+        }
+    }
+}
+```
+
+
+
+**算法复杂度：**
+
+- 时间复杂度：*O*(*n*)。递归函数 *T*(*n*) = 2 · *T*(*n*/2)+1。
+- 空间复杂度：最坏情况下需要空间*O*(*n*)，平均情况为*O*(*logn*)。
+
+
+
+
+
+解法二：**基于栈的中序遍历**
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    public List <Integer> inorderTraversal(TreeNode root) {
+        List <Integer> res = new ArrayList <> ();
+        Stack <TreeNode> stack = new Stack <> ();
+        TreeNode curr = root;
+        while (curr != null || !stack.isEmpty()) {
+            while (curr != null) {
+                stack.push(curr);
+                curr = curr.left;
+            }
+            curr = stack.pop();
+            res.add(curr.val);
+            curr = curr.right;
+        }
+        return res;
+    }
+}
+```
+
+
+
+**算法复杂度：**
+
+- 时间复杂度：*O*(*n*)。
+- 空间复杂度：*O*(*n*)。
+
+
+
+### 笔记
+
