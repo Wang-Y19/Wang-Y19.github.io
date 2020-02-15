@@ -140,7 +140,7 @@ class Solution {
 
     stack.add(root);
     while (!stack.isEmpty()) {
-      //检索并弹出stcak中最后一个元素
+      //检索并弹出栈顶元素
       TreeNode node = stack.pollLast(); 
       //将弹出的元素加入output中
       output.add(node.val);
@@ -157,8 +157,6 @@ class Solution {
   }
 }
 ```
-
-
 
 **算法复杂度：**
 
@@ -220,8 +218,6 @@ class Solution {
 }
 ```
 
-
-
 **算法复杂度：**
 
 - 时间复杂度：*O*(*n*)。递归函数 *T*(*n*) = 2 · *T*(*n*/2)+1。
@@ -262,8 +258,6 @@ public class Solution {
 }
 ```
 
-
-
 **算法复杂度：**
 
 - 时间复杂度：*O*(*n*)。
@@ -271,5 +265,139 @@ public class Solution {
 
 
 
-### 2.3笔记
+### 2.3.1层次遍历题目介绍
+
+给定一个二叉树，返回其按层次遍历的节点值。 
+
+（即逐层地，从左到右访问所有节点）。
+
+**示例:**
+
+> 给定二叉树: [3,9,20,null,null,15,7]：
+>
+>      3
+>    /   \
+>   9   20
+>         /  \
+>       15   7
+>    
+> 返回其层次遍历结果：[ [3], [9,20], [15,7] ]
+
+
+
+### 2.3.2层次遍历代码实现
+
+解法一：**递归**
+
+首先确认树非空，然后调用递归函数 `helper(node, level)`，参数是当前节点和节点的层次。
+
+程序过程如下：
+
+- 输出列表称为 `levels`，当前最高层数就是列表的长度 `len(levels)`。比较访问节点所在的层次 `level` 和当前最高层次 `len(levels)` 的大小，如果前者更大就向 `levels` 添加一个空列表。
+- 将当前节点插入到对应层的列表 `levels[level]` 中。
+- 递归非空的孩子节点：`helper(node.left / node.right, level + 1)`。
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    List<List<Integer>> levels = new ArrayList<List<Integer>>();
+
+    public void helper(TreeNode node, int level) {
+         // start the current level
+         if (levels.size() == level)
+             levels.add(new ArrayList<Integer>());
+    
+         // fulfil the current level
+         levels.get(level).add(node.val);
+    
+         // process child nodes for the next level
+         if (node.left != null)
+            helper(node.left, level + 1);
+         if (node.right != null)
+            helper(node.right, level + 1);
+    }
+    
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        if (root == null) return levels;
+        helper(root, 0);
+        return levels;
+    }
+}
+```
+
+**算法复杂度：**
+
+- 时间复杂度：*O*(*N*)，因为每个节点恰好会被运算一次。
+- 空间复杂度：*O*(*N*)，保存输出结果的数组包含 `N` 个节点的值。
+
+
+
+解法二：**利用队列实现二叉树的层次遍历**
+
+`BFS`经典实现
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public List<List<Integer>> levelOrder(TreeNode root) {
+    if(root == null)
+        return new ArrayList<>();
+    
+    List<List<Integer>> res = new ArrayList<>();
+    Queue<TreeNode> queue = new LinkedList<TreeNode>();
+    queue.add(root);
+    
+    while(!queue.isEmpty()){
+        int count = queue.size();
+        List<Integer> list = new ArrayList<Integer>();
+        while(count > 0){
+            //从队首获取元素，同时获取的这个元素将从原队列删除
+            TreeNode node = queue.poll();
+            list.add(node.val);
+            
+            if(node.left != null)
+                queue.add(node.left);
+            if(node.right != null)
+                queue.add(node.right);
+            count--;
+        }
+        res.add(list);
+    }
+    return res;
+}
+```
+
+
+
+
+### 2.4笔记
+
+**如何遍历一棵树**
+
+有两种通用的遍历树的策略：
+
+- 深度优先搜索（`DFS`）
+
+  在这个策略中，我们采用深度作为优先级，以便从跟开始一直到达某个确定的叶子，然后再返回根到达另一个分支。
+
+  深度优先搜索策略又可以根据根节点、左孩子和右孩子的相对顺序被细分为`先序遍历`，`中序遍历`和`后序遍历`。
+
+- 宽度优先搜索（`BFS`）
+
+  我们按照高度顺序一层一层的访问整棵树，高层次的节点将会比低层次的节点先被访问到。
 
