@@ -15,9 +15,9 @@ toc: true
 题目及部分代码来自[力扣](https://leetcode-cn.com/)，不断更新中……
 
 
-## 1.丑数
+## 1 丑数
 
-### 1.1题目介绍
+### 1.1 题目介绍
 
 编写一个程序，找出第 n 个丑数。
 
@@ -26,7 +26,9 @@ toc: true
 **示例:**
 
 > 输入: n = 10
+>
 > 输出: 12
+>
 > 解释: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 是前 10 个丑数。
 
 **说明:** 
@@ -36,7 +38,7 @@ toc: true
 
 
 
-### 1.2代码实现
+### 1.2 代码实现
 
 
 ```java
@@ -71,7 +73,7 @@ public int nthUglyNumber(int n) {
 
 
 
-### 1.3笔记
+### 1.3 笔记
 
 三指针法。一部分是丑数数组，另一部分是权重2，3，5。下一个丑数，定义为丑数数组中的数乘以权重，所得的最小值。
 
@@ -92,9 +94,11 @@ public int nthUglyNumber(int n) {
 
 
 
-## 2.二叉树的遍历
+## 2 二叉树的遍历
 
-### 2.1.1前序遍历题目介绍
+### 2.1 前序遍历
+
+#### 2.1.1 前序遍历题目介绍
 
 给定一个二叉树，返回它的前序遍历。
 
@@ -103,16 +107,22 @@ public int nthUglyNumber(int n) {
 **示例:**
 
 > 输入: [1,null,2,3]
->    1
->       \
->         2
->       /
->    3
+>
+> 1
+>
+>    \
+>
+> ​     2
+>
+>    /
+>
+> 3
+>
 > 输出: [1,2,3]
 
 
 
-### 2.1.2前序遍历代码实现
+#### 2.1.2 前序遍历代码实现
 
 **迭代法：**
 
@@ -164,8 +174,9 @@ class Solution {
 - 空间复杂度：取决于树的结构，最坏情况存储整棵树，因此空间复杂度是*O*(*N*)。
 
 
+### 2.2 中序遍历
 
-### 2.2.1中序遍历题目介绍
+#### 2.2.1 中序遍历题目介绍
 
 给定一个二叉树，返回它的中序遍历。
 
@@ -174,16 +185,22 @@ class Solution {
 **示例:**
 
 > 输入: [1,null,2,3]
->    1
->       \
->         2
->       /
->    3
+>
+> 1
+>
+>    \
+>
+> ​     2
+>
+>    /
+>
+> 3
+>
 > 输出: [1,3,2]
 
 
 
-### 2.2.2中序遍历代码实现
+#### 2.2.2 中序遍历代码实现
 
 解法一：**递归**
 
@@ -264,8 +281,9 @@ public class Solution {
 - 空间复杂度：*O*(*n*)。
 
 
+### 2.3 层次遍历
 
-### 2.3.1层次遍历题目介绍
+#### 2.3.1 层次遍历题目介绍
 
 给定一个二叉树，返回其按层次遍历的节点值。 
 
@@ -275,17 +293,21 @@ public class Solution {
 
 > 给定二叉树: [3,9,20,null,null,15,7]：
 >
->      3
->    /   \
->   9   20
->         /  \
->       15   7
->    
+>   3
+>
+> /   \
+>
+> 9   20
+>
+> ​     /  \
+>
+>    15   7
+>
 > 返回其层次遍历结果：[ [3], [9,20], [15,7] ]
 
 
 
-### 2.3.2层次遍历代码实现
+#### 2.3.2 层次遍历代码实现
 
 解法一：**递归**
 
@@ -385,7 +407,7 @@ public List<List<Integer>> levelOrder(TreeNode root) {
 
 
 
-### 2.4笔记
+### 2.4 笔记
 
 **如何遍历一棵树**
 
@@ -400,4 +422,106 @@ public List<List<Integer>> levelOrder(TreeNode root) {
 - 宽度优先搜索（`BFS`）
 
   我们按照高度顺序一层一层的访问整棵树，高层次的节点将会比低层次的节点先被访问到。
+  
+  
 
+### 2.5 使用DFS思想解[78. 子集](https://leetcode-cn.com/problems/subsets/)
+
+#### 2.5.1 题目介绍
+
+给定一组不含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。
+
+说明：解集不能包含重复的子集。
+
+> 示例:
+>
+> 输入: nums = [1,2,3]
+>
+> 输出:
+>
+> [
+>
+>   [3],
+>
+>   [1],
+>
+>   [2],
+>
+>   [1,2,3],
+>
+>   [1,3],
+>
+>   [2,3],
+>
+>   [1,2],
+>
+>   []
+>
+> ]
+
+
+
+#### 2.5.2 代码实现
+
+集合中每个元素的选和不选，构成了一个满二叉状态树，比如，左子树是不选，右子树是选，从根节点、到叶子节点的所有路径，构成了所有子集。可以有前序、中序、后序的不同写法，结果的顺序不一样。本质上，其实是比较完整的中序遍历。
+
+![幂集：中序遍历.png](https://pic.leetcode-cn.com/9e535eb558237c51a444a43a35304762aab0bf997f2c221b9a6004b6c647a046-%E5%B9%82%E9%9B%86%EF%BC%9A%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86.png)
+
+```java
+/**
+     * DFS，前序遍历
+     */
+    public static void preOrder(int[] nums, int i, ArrayList<Integer> subset, List<List<Integer>> res) {
+        if (i >= nums.length) return;
+        // 到了新的状态，记录新的路径，要重新拷贝一份
+        subset = new ArrayList<Integer>(subset);
+
+        // 这里
+        res.add(subset);
+        preOrder(nums, i + 1, subset, res);
+        subset.add(nums[i]);
+        preOrder(nums, i + 1, subset, res);
+    }
+    
+    /**
+     * DFS，中序遍历
+     */
+    public static void inOrder(int[] nums, int i, ArrayList<Integer> subset, List<List<Integer>> res) {
+        if (i >= nums.length) return;
+        subset = new ArrayList<Integer>(subset);
+    
+        inOrder(nums, i + 1, subset, res);
+        subset.add(nums[i]);
+        // 这里
+        res.add(subset);
+        inOrder(nums, i + 1, subset, res);
+    }
+    
+    /**
+     * DFS，后序遍历
+     */
+    public static void postOrder(int[] nums, int i, ArrayList<Integer> subset, List<List<Integer>> res) {
+        if (i >= nums.length) return;
+        subset = new ArrayList<Integer>(subset);
+    
+        postOrder(nums, i + 1, subset, res);
+        subset.add(nums[i]);
+        postOrder(nums, i + 1, subset, res);
+        // 这里
+        res.add(subset);
+    }
+```
+
+也可以左子树是选，右子树是不选，相当于，也可以前序、中序、后序的不同写法。程序实现上，需要用一个栈，元素入栈遍历左子树，（最近入栈的那个）元素出栈，遍历右子树。
+
+```java
+public static void newPreOrder(int[] nums, int i, LinkedList<Integer> stack, List<List<Integer>> res) {
+    if (i >= nums.length) return;
+    stack.push(nums[i]);
+    // 这里
+    res.add(new ArrayList<Integer>(stack));
+    newPreOrder(nums, i + 1, stack, res);
+    stack.pop();
+    newPreOrder(nums, i + 1, stack, res);
+}
+```
