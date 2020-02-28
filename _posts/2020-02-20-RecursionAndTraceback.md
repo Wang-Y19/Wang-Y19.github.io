@@ -442,32 +442,66 @@ class Solution {
 
 
 
+### 3.2 总结回溯法
 
-### 3.2 解题思路
+[回溯法](https://baike.baidu.com/item/回溯法/86074?fr=aladdin)是一种探索所有潜在可能性找到解决方案的算法。如果当前方案不是正确的解决方案，或者不是最后一个正确的解决方案，则回溯法通过修改上一步的值继续寻找解决方案。
 
-通过理解上面两题解法，可得本题使用递归回溯解法的代码为：
+![img](https://pic.leetcode-cn.com/Figures/78/backtracking.png)
+
+  
+
+
+### 3.3 解题思路
+
+**算法**
+
+定义一个回溯方法 `backtrack(first, curr)`，第一个参数为索引 `first`，第二个参数为当前子集 `curr`。
+
+- 如果当前子集构造完成，将它添加到输出集合中。
+
+- 否则，从 `first` 到 `n` 遍历索引 `i`。
+
+  将整数 `nums[i]` 添加到当前子集 `curr`。
+
+  继续向子集中添加整数：`backtrack(i + 1, curr)`。
+
+  从 `curr` 中删除 `nums[i]` 进行回溯。
+  
+
+本题使用递归回溯解法的代码为：
 
 ```java
-List<List<Integer>> lists = new ArrayList<>();
-    public List<List<Integer>> subsets1(int[] nums) {
-        if(nums == null || nums.length ==0){
-            return lists;
-        }
+class Solution {
+  List<List<Integer>> output = new ArrayList();
+  //n为数组长度，k用来判断是否进行了所有可能的组合
+  int n, k;
 
-        List<Integer> list = new ArrayList<>();
-        process(list, nums, 0);
-        return lists;
-    
+  //回溯法
+  public void backtrack(int first, ArrayList<Integer> curr, int[] nums) {
+    //当前子集构造完成
+    if (curr.size() == k)
+      //添加到输出集合中
+      output.add(new ArrayList(curr));
+	
+    //从first到n遍历索引i
+    for (int i = first; i < n; ++i) {
+      //将整数num[i]添加到当前子集
+      curr.add(nums[i]);
+      //使用下一个数来填充子集
+      backtrack(i + 1, curr, nums);
+      //回溯
+      curr.remove(curr.size() - 1);
     }
-    
-    private void process(List<Integer>list, int[] nums, int start){
-    
-        lists.add(new ArrayList(list));
-        for(int i = start; i < nums.length; i++){
-    
-            list.add(nums[i]);
-            process(list, nums, i+1);
-            list.remove(list.size()-1);
-        }
+  }
+
+  public List<List<Integer>> subsets(int[] nums) {
+    n = nums.length;
+    //通过for循环改变k值，遍历所有可能的组合
+    //eg：k=0:[];k=1:[1],[2],[3];k=2:[1,2],[1,3],[2,3];k=3:[1,2,3]
+    for (k = 0; k < n + 1; ++k) {
+      backtrack(0, new ArrayList<Integer>(), nums);
     }
+    return output;
+  }
+}
 ```
