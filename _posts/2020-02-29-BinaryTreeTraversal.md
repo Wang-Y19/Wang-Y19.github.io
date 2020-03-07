@@ -34,7 +34,7 @@ toc: true
 
 肯定很难理解，我们一步步执行下，请看图
 
-![前序遍历迭代实现](https://images2018.cnblogs.com/blog/1410578/201806/1410578-20180604204348719-891719371.png)
+![前序遍历迭代实现](https://github.com/Wang-Y19/Wang-Y19.github.io/blob/master/images/preorder.png)
 
 我们来实现一下代码
 
@@ -84,7 +84,7 @@ public List<Integer> preorderTraversal(TreeNode root) {
 
 3、循环步骤2直到栈为空且root为null
 
-![中序遍历迭代实现](https://images2018.cnblogs.com/blog/1410578/201806/1410578-20180604204416675-1967016534.png)
+![中序遍历迭代实现](https://github.com/Wang-Y19/Wang-Y19.github.io/blob/master/images/inorder.png)
 
 我们实现一下代码
 
@@ -133,7 +133,7 @@ public static List<Integer> inorderTraversal(TreeNode root) {
 
 4、循环步骤3直到栈空
 
-![后序遍历迭代实现](https://images2018.cnblogs.com/blog/1410578/201806/1410578-20180604204443839-2059651105.png)
+![后序遍历迭代实现](https://github.com/Wang-Y19/Wang-Y19.github.io/blob/master/images/postorder.png)
 
 我们实现一下代码
 
@@ -163,6 +163,55 @@ public static List<Integer> postorderTraversal(TreeNode root) {
         
         return list;
     }
+```
+
+
+
+### 层次遍历
+
+从上往下打印出二叉树的每个节点，同层节点从左至右打印。
+
+使用队列，利用队列先进先出的特点，每次遍历一个节点，然后就把这个节点的左子树和右子树都放到这个队列中，然后设置一个while循环每次都是判断这个队列是否为空。
+
+如果不为空时就取出一个节点，然后把他的左子树和右子树放入队列中。
+
+这样的一个过程就使得每次都是按照层次的顺序将这些节点放入到这个队列中，每次都是取出这个节点中的数据。
+
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    public ArrayList<Integer> PrintFromTopToBottom(TreeNode root) {
+         ArrayList<Integer> list = new ArrayList<Integer>();
+         ArrayList<TreeNode> node = new ArrayList<TreeNode>(); 
+         if(root == null){
+             return list;
+         }
+         node.add(root);
+         while(node.size() > 0){
+              //取出队列中的第一个节点
+              TreeNode treeNode = node.remove(0);
+              //判断该节点是否有左右子节点，有的话就入列
+              if(treeNode.left != null){
+                  node.add(treeNode.left);
+              }
+              if(treeNode.right != null){
+                  node.add(treeNode.right);
+              }
+              //将取出的节点放入list中
+              list.add(treeNode.val);
+          }
+      return list;
+   }
+}
 ```
 
 
@@ -219,5 +268,3 @@ public void postorderTraversal(TreeNode root) {
         }
     }
 ```
-
-递归的实现还是比较简单的，也容易理解；
