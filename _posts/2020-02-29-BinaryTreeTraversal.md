@@ -188,29 +188,29 @@ public static List<Integer> postorderTraversal(TreeNode root) {
  *     TreeNode(int x) { val = x; }
  * }
  */
-public class Solution {
-    public ArrayList<Integer> PrintFromTopToBottom(TreeNode root) {
-         ArrayList<Integer> list = new ArrayList<Integer>();
-         ArrayList<TreeNode> node = new ArrayList<TreeNode>(); 
-         if(root == null){
-             return list;
-         }
-         node.add(root);
-         while(node.size() > 0){
-              //取出队列中的第一个节点
-              TreeNode treeNode = node.remove(0);
-              //判断该节点是否有左右子节点，有的话就入列
-              if(treeNode.left != null){
-                  node.add(treeNode.left);
-              }
-              if(treeNode.right != null){
-                  node.add(treeNode.right);
-              }
-              //将取出的节点放入list中
-              list.add(treeNode.val);
-          }
-      return list;
-   }
+public ArrayList<Integer> PrintFromTopToBottom(TreeNode root) {
+    ArrayList<Integer> list = new ArrayList<>();
+    if (root == null) {
+        return list;
+    }
+    Queue<TreeNode> queue = new LinkedList<>();
+    //向队列中添加元素
+    queue.offer(root);
+
+    while (!queue.isEmpty()) {
+        //出列
+        TreeNode node = queue.poll();
+        //将出列的点加入list
+        list.add(node.val);
+        //将左右子节点加入队列
+        if (node.left != null) {
+            queue.offer(node.left);
+        }
+        if (node.right != null) {
+            queue.offer(node.right);
+        }
+    }
+    return list;
 }
 ```
 
@@ -267,4 +267,34 @@ public void postorderTraversal(TreeNode root) {
             System.out.print( root.val + " " );
         }
     }
+```
+
+### 层序遍历，递归实现
+
+```java
+public ArrayList<Integer> PrintFromTopToBottom2(TreeNode root) {
+    ArrayList<Integer> list = new ArrayList<Integer>();
+    if (root == null) {
+        return list;
+    }
+
+    list.add(root.val);
+    levelOrder(root, list);
+    return list;
+}
+
+public void levelOrder(TreeNode root, ArrayList<Integer> list) {
+    if (root == null) {
+        return;
+    }
+
+    if (root.left != null) {
+        list.add(root.left.val);
+    }
+    if (root.right != null) {
+        list.add(root.right.val);
+    }
+    levelOrder(root.left, list);
+    levelOrder(root.right, list);
+}
 ```
