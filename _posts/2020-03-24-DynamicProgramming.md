@@ -104,6 +104,7 @@ class Solution {
 ```
 
 
+
 ### 2.[不同路径](https://leetcode-cn.com/problems/unique-paths/)
 
 一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。
@@ -155,6 +156,8 @@ class Solution {
     }
 }
 ```
+
+
 
 ### 3.[不同路径 II](https://leetcode-cn.com/problems/unique-paths-ii/)
 
@@ -295,6 +298,8 @@ class Solution {
 }
 ```
 
+
+
 ### 5.[解码方法](https://leetcode-cn.com/problems/decode-ways/)
 
 一条包含字母 A-Z 的消息通过以下方式进行了编码：
@@ -323,16 +328,16 @@ class Solution {
 >
 > **原因**：（不考虑边界条件），假设给定字符串为`“111”`，很明显`dp[0] = 1`，`dp[1] = 2`
 >
-> ​              对s[3]来说，可能的解码方式为`“11”+1`和`“1”+11`，前者对应`dp[1]`，后者对应`dp[0]`。
+> ​              对s[3]来说，可能的解码方式为`“1”+11`和`“11”+1`，前者对应`dp[0]`，后者对应`dp[1]`。
 >
 
 **讨论边界条件：**
 
 - 首先，如果第一个数字为0，则无法解码，直接返回0。
-- 如果`s[i] = 0`，需要判断`s[i - 1]`是否为1或2，因为0不能单独解码，必须依附前一个数，状态转移方程为`dp[i-2]`(对应上述的`“1”+11`情况)，而且可能情况只有10或20。（00，30，40等情况返回0）
-- 如果`s[i] != 0`,可以再分为三种情况：
-  - 如果`s[i - 1] = 1`或者`s[i - 1] = 2 并且 s[i] <= 6`，这种情况满足所有可能的组合，因此状态转移方程为`dp[i] = dp[i - 1] + dp[i - 2]`。
-  - 如果不满足上述条件（eg：`s[i - 1] = 5， s[i] = 2`，`s[i - 1] = 2， s[i] = 8`），这种情况只能对`s[i]`单独解码（对应上述的`“11”+1`情况），因此状态转移方程为`dp[i-1]`。
+- 如果`s[i] = 0`，需要判断`s[i - 1]`是否为1或2，因为0不能单独解码，必须依附前一个数，状态转移方程为`dp[i-2]`(即如果是`110`，只能为`“1”+10`组合)，而且可能情况只有10或20。（00，30，40等情况返回0）
+- 如果`s[i] != 0`,可以再分为下列情况：
+  - 如果`s[i - 1] = 1`或者`s[i - 1] = 2 且 s[i] <= 6`，这种情况满足所有可能的组合，因此状态转移方程为`dp[i] = dp[i - 1] + dp[i - 2]`。
+  - 如果不满足上述条件（eg：`s[i - 1] = 5， s[i] = 2`，`s[i - 1] = 2， s[i] = 8`），这种情况只能对`s[i]`单独解码（即如果是`152`，只能为`“15”+2`组合），因此状态转移方程为`dp[i-1]`。
 
 **代码实现：**
 
@@ -340,7 +345,7 @@ class Solution {
 class Solution {
     public int numDecodings(String s) {
         if(s.charAt(0) == '0') return 0;
-        //为了防止数组越界，将dp[]长度+1，dp[i+1]对应s[i]编码方法数。
+        //为了防止数组越界，将dp长度+1。因为不存在dp[-1]，所以dp[i+1]对应s[i]编码方法数。
         int[] dp = new int[s.length() + 1];
         dp[0] = 1;
         dp[1] = 1;
@@ -352,7 +357,7 @@ class Solution {
                     return 0;
                 }
             }else if(s.charAt(i - 1) == '1' || (s.charAt(i - 1) == '2' && s.charAt(i) <= '6')){
-                dp[i + 1] = dp[i - 1] + dp[i];
+                dp[i + 1] = dp[i] + dp[i - 1];
             }else{
                 dp[i + 1] = dp[i];
             }
@@ -361,6 +366,8 @@ class Solution {
     }
 }
 ```
+> 注：代码里的`dp[0]`，实际上表示的是公式里的`dp[-1]`。`-1`没有含义，但是注意到情况二和情况三，在一开始`i=1`，没有`dp[i-2]`这个值，而此时又必须给现有的编码数量加一（因为在这两种情况下多了一种编码方案），所以最好的办法就是初始化一个`dp[-1]`等于`1`。这种做法保证了代码的统一和简洁。
+
 
 
 
@@ -424,6 +431,241 @@ class Solution {
             res = Math.max(res, dp[i]);
         }
         return res;
+    }
+}
+```
+
+
+
+### 7.[三角形最小路径和](https://leetcode-cn.com/problems/triangle/)（至底向上思想）
+
+给定一个三角形，找出自顶向下的最小路径和。每一步只能移动到下一行中相邻的结点上。
+
+> 例如，给定三角形：
+>
+> [
+>
+> ​     [2],
+>
+> ​    [3,4],
+>
+>       [6,5,7],
+>
+>      [4,1,8,3]
+>
+> ]
+>
+> 自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
+
+**解题思路：动态规划+至底向上**
+
+> 三角形的层级`level = triangle.size() - 1`，三角形的第`i`级有`i + 1`个数字。
+>
+
+- 状态定义：`dp[i]`的值代表至底向上移动时，由下一层移动到上一层的第`i`个位置处，累计最短移动路径（向上移动一层的所有可能路径长度）
+
+- 转移方程 ：`dp[i] = Math.min(dp[i], dp[i+1]) + triangle.get(level).get(i)`
+
+  转移方程表示，移动到上一层的第`i`个位置处，最短的移动路径。
+
+- 初始状态：由底层出发，因此初始值即底层权值。
+
+- 返回值：顶层只有一个点，返回dp[0]。
+
+*特别地：因为只需返回最小路径和，因此无需使用二维数组记录每层各点的最小路径，在上移一层后，for循环会覆盖掉下面一层对应位置的最小路径和。*
+
+
+**代码实现：**
+
+```java
+public int minimumTotal(List<List<Integer>> triangle) {
+    int row = triangle.size();
+    int[] dp = new int[row+1];
+    for (int level = row-1;level>=0;level--){
+        for (int i = 0;i<=level;i++){   //第i行有i+1个数字
+            dp[i] = Math.min(dp[i], dp[i+1]) + triangle.get(level).get(i);
+        }
+    }
+    return dp[0];
+}
+```
+
+
+
+### 8.[乘积最大子数组](https://leetcode-cn.com/problems/maximum-product-subarray/)
+
+给你一个整数数组 nums ，请你找出数组中乘积最大的连续子数组（该子数组中至少包含一个数字）。
+
+**示例 1:**
+
+> 输入: [2,3,-2,4]
+>
+> 输出: 6
+>
+> 解释: 子数组 [2,3] 有最大乘积 6。
+
+**示例 2:**
+
+> 输入: [-2,0,-1]
+>
+> 输出: 0
+>
+> 解释: 结果不能为 2, 因为 [-2,-1] 不是子数组。
+
+**解题思路：**
+
+- 遍历数组时计算当前最大值，不断更新。令max初值为-
+
+- 令`imax`为当前最大值，则当前最大值为 `imax = max(imax * nums[i], nums[i])`。因为需要找子数组，所以相乘的数字不能间断，使用**动态规划**的思想，每次循环时`imax`值为前`i - 1`个数字中子数组乘积的最大值。
+
+- 由于存在负数，那么会导致最大的变最小的，最小的变最大的。因此还需要维护当前最小值`imin`，`imin = min(imin * nums[i], nums[i])`，思想同上。
+
+- 当负数出现时则`imax`与`imin`进行交换再进行下一步计算。
+
+  eg：imax = 8， imin = 2，下个值为-3，则imax = imin * -3，imin = imax * -3
+
+- 时间复杂度：O(n)
+
+**代码实现：**
+```java
+class Solution {
+    public int maxProduct(int[] nums) {
+        int max = Integer.MIN_VALUE, imax = 1, imin = 1;
+        for(int i = 0; i < nums.length; i++){
+            if(nums[i] < 0){
+                int temp = imax;
+                imax = imin;
+                imin = temp;
+            }
+            imax = Math.max(imax * nums[i], nums[i]);
+            imin = Math.min(imin * nums[i], nums[i]);
+            max = Math.max(max, imax);
+        }
+        return max;
+    }
+}
+```
+
+### 9.[ 完全平方数](https://leetcode-cn.com/problems/perfect-squares/)
+
+给定正整数 *n*，找到若干个完全平方数（比如 `1, 4, 9, 16, ...`）使得它们的和等于 *n*。你需要让组成和的完全平方数的个数最少。
+
+**示例 1:**
+
+> 输入: n = 13
+> 输出: 2
+> 解释: 13 = 4 + 9.
+
+**解题思路：** **动态规划**
+
+- 首先初始化长度为`n+1`的数组`dp`，每个位置都为`0`
+
+- `dp[i]`记录的值为和为`i`的平方数最小个数，如果`n`为`0`，则`dp[0]=0`
+
+- 对数组进行遍历，下标为`i`，每次都先将当前数字更新为最大的结果，即`dp[i]=i`，比如`i=4`，最坏结果为`4=1+1+1+1`即为`4`个数字
+
+- 动态转移方程为：`dp[i] = MIN(dp[i], dp[i - j * j] + 1)`，`i`为下标，`j*j`表示平方数。
+
+  **解释:**
+
+  > 给定正整数 `n`，和为`n`的完全平方数最小个数`m`满足：`m = dp[n]` 
+  >
+  > 令 `j*j` 为满足最小完全平方数个数 `m` 的时候，最大的平方数  。 令  `d + j * j = n ;  d >= 0;` 
+  >
+  > 注意：一定要是满足`m`最小的时候的`j`值,一味的取最大平方数,就是贪心算法了
+  >
+  > 得出 `dp[d] + dp[j*j] = dp[n]`，即：`和为d的完全平方数个数 + 和为j*j的完全平方数个数 = m = dp[n]`
+  >
+  > 和为`j*j`的最小完全平方数个数显然为 `dp[j*j] = 1`；则 `dp[d] + 1 = dp[n]`; 
+  >
+  > 因为 `d = n - j*j`；则可以推出`dp[n - j*j] + 1 = dp[n]` ;  且 `j * j <= n`;
+
+
+- 时间复杂度：`O(n*sqrt(n))`，sqrt为平方根
+
+**代码实现：**
+```java
+class Solution {
+    public int numSquares(int n) {
+        int[] dp = new int[n + 1]; // 默认初始化值都为0
+        for (int i = 1; i <= n; i++) {
+            dp[i] = i; // 最坏的情况就是每次+1
+            for (int j = 1; i - j * j >= 0; j++) { 
+                dp[i] = Math.min(dp[i], dp[i - j * j] + 1); // 动态转移方程
+            }
+        }
+        return dp[n];
+    }
+}
+```
+
+
+
+### 10.[二维区域和检索 - 矩阵不可变](https://leetcode-cn.com/problems/range-sum-query-2d-immutable/)
+
+给定一个二维矩阵，计算其子矩形范围内元素的总和，该子矩阵的左上角为 (*row*1, *col*1) ，右下角为 (*row*2, *col*2)。
+
+**示例:**
+
+> 给定 matrix = [
+>
+>   [3, 0, 1, 4, 2],
+>
+>   [5, 6, 3, 2, 1],
+>
+>   [1, 2, 0, 1, 5],
+>
+>   [4, 1, 0, 1, 7],
+>
+>   [1, 0, 3, 0, 5]
+>
+> ]
+>
+> sumRegion(2, 1, 4, 3) -> 8
+>
+> sumRegion(1, 1, 2, 2) -> 11
+>
+> sumRegion(1, 2, 2, 4) -> 12
+
+**说明:**
+
+1. 你可以假设矩阵不可变。
+2. 会多次调用 sumRegion 方法。
+3. 你可以假设 row1 ≤ row2 且 col1 ≤ col2。
+
+**解题思路：动态规划**
+
+- 二维数组`dp[i][j]`代表从矩阵`（0,0）`至`（i,j）`处的元素和。
+
+  > 注意到：`dp[i][j]=matrix[i][j]+dp[i][j-1]+dp[i-1][j]-dp[i-1][j-1]`
+  >
+  > 为防止在`i,j=0`时，上式出现数组越界，将二维数组`dp`的行列长度`+1`，即`dp[i+1][j+1]`对应原始矩阵`（0,0）`至`（i,j）`处的元素和。
+
+- **状态转移方程**：`dp[i+1][j+1]=matrix[i][j]+dp[i+1][j]+dp[i][j+1]-dp[i][j]`
+
+- **范围（r1,c1,r2,c2）的元素和等于**：`dp[r2+1][c2+1]-dp[r2+1][c1]-dp[r1][c2+1]+dp[r1,c1]`
+
+- 时间复杂度：每次查询时间 `O(1)`，`O(mn)`的时间预计算。构造函数中的预计算需要 `O(mn)` 时间。每个 sumregion 查询需要 `O(1)` 时间 。
+
+- 空间复杂度：`O(mn)`，该算法使用 `O(mn)` 空间存储累积区域和。
+
+**代码实现：**
+```java
+class NumMatrix {
+    private int[][] dp;
+
+    public NumMatrix(int[][] matrix) {
+        if (matrix.length == 0 || matrix[0].length == 0) return;
+        dp = new int[matrix.length + 1][matrix[0].length + 1];
+        for (int r = 0; r < matrix.length; r++) {
+            for (int c = 0; c < matrix[0].length; c++) {
+                dp[r + 1][c + 1] = matrix[r][c] + dp[r + 1][c] + dp[r][c + 1] - dp[r][c];
+            }
+        }
+    }
+    
+    public int sumRegion(int row1, int col1, int row2, int col2) {
+        return dp[row2 + 1][col2 + 1] - dp[row1][col2 + 1] - dp[row2 + 1][col1] + dp[row1][col1];
     }
 }
 ```
