@@ -669,3 +669,93 @@ class NumMatrix {
     }
 }
 ```
+
+### 11.[编辑距离](https://leetcode-cn.com/problems/edit-distance/)
+
+给你两个单词 word1 和 word2，请你计算出将 word1 转换成 word2 所使用的最少操作数 。
+
+你可以对一个单词进行如下三种操作：
+
+- 插入一个字符
+- 删除一个字符
+- 替换一个字符
+
+**示例：**
+
+> 输入：word1 = "horse", word2 = "ros"
+>
+> 输出：3
+>
+> 解释：
+>
+> horse -> rorse (将 'h' 替换为 'r')
+>
+> rorse -> rose (删除 'r')
+>
+> rose -> ros (删除 'e')
+
+**解题思路：动态规划**
+
+word1和word2的编辑距离为X，意味着word1经过X步，变成了word2，并且X是个最少的步数。
+
+我们有word1和word2，定义`dp[i][j]`的含义为：word1的前`i`个字符和word2的前`j`个字符的编辑距离。意思就是word1的前`i`个字符，变成word2的前`j`个字符，最少需要这么多步。
+
+例如`word1 = "horse", word2 = "ros"`，那么`dp[3][2]=X`就表示`"hor"`和`“ro”`的编辑距离，即把`"hor"`变成`“ro”`最少需要X步。
+
+如果下标为零则表示空串，比如：`dp[0][2]`就表示空串`""`和`“ro”`的编辑距离
+
+**定理一**：如果其中一个字符串是空串，那么编辑距离是另一个字符串的长度。
+
+> 比如空串“”和“ro”的编辑距离是2（做两次“插入”操作）。再比如"hor"和空串“”的编辑距离是3（做三次“删除”操作）。
+
+**定理二**：当`i>0,j>0`时（即两个串都不空时）：
+
+> - 若 word1 和 word2 的最后一个字母相同：
+>
+> `dp[i][j]=min(dp[i][j−1]+1,dp[i−1][j]+1,dp[i−1][j−1])`
+>
+> - 若 word1 和 word2 的最后一个字母不同：
+>
+> `dp[i][j]=1+min(dp[i][j−1],dp[i−1][j],dp[i−1][j−1])`
+
+举个例子，`word1 = "abcde", word2 = "fgh"`,我们现在算这俩字符串的编辑距离，就有三种方式：
+
+1. 已知`"abcd"`变成`"fgh"`需要的步数（假设X步），那么从`"abcde"`到`"fgh"`就是`"abcde"->"abcd"->"fgh"`。（一次删除，总共X+1步）
+2. 已知`"abcde"`变成`“fg”`需要的步数（假设Y步），那么从`"abcde"`到`"fgh"`就是`"abcde"->"fg"->"fgh"`。（先Y步，再一次添加，总共Y+1步）
+3. 已知`"abcd"`变成`“fg”`需要的步数（假设Z步），那么从`"abcde"`到`"fgh"`就是`"abcde"->"fge"->"fgh"`。（先不管最后一个字符，把前面的先变好，用了Z步，然后把最后一个字符给替换了。需要判断最后一个字符是否相同，如果最后一个字符碰巧就一样，那就不用替换，省了一步）
+
+以上三种方式算出来选最少的，就是答案。
+
+**代码实现：**
+```java
+class Solution {
+  public int minDistance(String word1, String word2) {
+    int n = word1.length();
+    int m = word2.length();
+    // 如果有一个字符串为空串，则返回非空串的长度（对应全部插入或删除的操作）
+    if (n * m == 0)
+      return n + m;
+    // 定义DP数组
+    int [][] dp = new int[n + 1][m + 1];
+    // 边界状态初始化
+    for (int i = 0; i < n + 1; i++) {
+      dp[i][0] = i;
+    }
+    for (int j = 0; j < m + 1; j++) {
+      dp[0][j] = j;
+    }
+    // 计算所有 DP 值
+    for (int i = 1; i < n + 1; i++) {
+      for (int j = 1; j < m + 1; j++) {
+        int delet = dp[i - 1][j] + 1;
+        int add = dp[i][j - 1] + 1;
+        int replace = dp[i - 1][j - 1];
+        if (word1.charAt(i - 1) != word2.charAt(j - 1))
+          replace += 1;
+        dp[i][j] = Math.min(delet, Math.min(add, replace));
+      }
+    }
+    return dp[n][m];
+  }
+}
+```
